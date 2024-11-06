@@ -65,6 +65,11 @@ const orderSchema = mongoose.Schema({
         default: "Paypal",
         required: true
     },
+    isPaid: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
     paymentResult: {
         id: {
             type: String

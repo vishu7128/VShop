@@ -18,6 +18,6 @@ export const protect = async (req, res, next) => {
         res.status(401).json({
             message: 'Not Authorized'
         })
-        next(error)
+        // next(error)
     }
 }

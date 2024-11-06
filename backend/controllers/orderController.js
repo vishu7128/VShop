@@ -8,9 +8,14 @@ export const createOrder = async (req, res, next) => {
             paymentMethod,
             shippingPrice,
             totalPrice,
-            price
 
         } = req.body
+
+        console.log(orderItems);
+        console.log(shippingAddress);
+        console.log(paymentMethod);
+        console.log(shippingPrice);
+        console.log(totalPrice);
 
         if (orderItems && orderItems.length === 0) {
             res.status(400)
@@ -23,7 +28,6 @@ export const createOrder = async (req, res, next) => {
             paymentMethod,
             shippingPrice,
             totalPrice,
-            price,
             user: req.user._id
         })
 
@@ -35,6 +39,87 @@ export const createOrder = async (req, res, next) => {
         console.log(error);
         if (!error.status) {
             error = new Error("Something went wrong")
+            error.status = 500
+        }
+        next(error)
+    }
+}
+
+export const updateOrder = async (req, res, next) => {
+    try {
+        const orderId = req.params.id
+        console.log(orderId);
+        const order = await Order.findById(orderId)
+        console.log(order);
+        if (!order) {
+            const error = new Error(`Order doesn't exists `)
+            error.status = 401
+            throw error
+        }
+        order.isPaid = true
+        order.paidAt = Date.now()
+        order.paymentResult = {
+            id: req.body.id,
+            status: req.body.status,
+            updatedTime: req.body.updatedTime,
+            emailAddress: req.body.emailAddress
+        }
+
+        const updatedOrder = await order.save()
+        res.status(200).json({
+            message: 'Order has been paid',
+            updatedOrder
+        })
+    } catch (error) {
+        console.log(error);
+        if (!error.status) {
+            error = new Error("Soemthign went wrong")
+            error.status = 500
+        }
+        next(error)
+
+    }
+}
+
+export const getorders = async (req, res, next) => {
+    try {
+        const orders = await Order.find({
+            user: req.user.id
+        }).sort({
+            _id: -1
+        })
+
+        if (!orders) {
+            const error = new Error('No orders found')
+            error.status(400)
+            throw error
+        }
+
+        res.status(200).json(orders)
+    } catch (error) {
+        if (!error.status) {
+            error = new Error('Something went wrong')
+            error.status = 500
+        }
+        next(error)
+    }
+}
+
+export const getorder = async (req, res, next) => {
+    try {
+        const orderId = req.params.id
+        const order = await Order.findById(orderId).populate("user", "email")
+
+        if (!order) {
+            const error = new Error('No order found')
+            error.status(400)
+            throw error
+        }
+
+        res.status(200).json(order)
+    } catch (error) {
+        if (!error.status) {
+            error = new Error('Something went wrong')
             error.status = 500
         }
         next(error)

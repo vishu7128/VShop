@@ -25,7 +25,7 @@ export const getProduct = async (req, res, next) => {
 
         res.status(200).json({
             message: 'Product fetched',
-            product
+            product: product[0]
         })
     } catch (error) {
         console.log(error);

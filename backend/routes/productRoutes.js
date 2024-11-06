@@ -6,11 +6,14 @@ import {
     getProduct,
     createProduct
 } from "../controllers/productController.js";
+import {
+    protect
+} from '../middlewares/Auth.js'
 
 const router = Router(); // Create router instance
 
-router.get('/', getProducts);
-router.get('/:id', getProduct);
-router.post('/', createProduct);
+router.get('/', protect, getProducts);
+router.get('/:id', protect, getProduct);
+router.post('/', protect, createProduct);
 
 export default router; // Export the router
