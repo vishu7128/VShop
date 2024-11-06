@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create an Axios instance with custom configuration
 const api = axios.create({
-    baseURL: 'https://vshop-bn9wmahxq-vishu7128s-projects.vercel.app/',
+    baseURL: 'https://vshop-git-master-vishu7128s-projects.vercel.app/',
     headers: {
         'Content-Type': 'application/json',
     },
