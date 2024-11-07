@@ -70,7 +70,12 @@ export default function MyNavbar() {
         <Navbar.Toggle />
       </div>
       <Navbar.Collapse>
-        <Navbar.Link href="#" active onClick={() => navigate("/")}>
+        <Navbar.Link
+          href="#"
+          active
+          onClick={() => navigate("/")}
+          className="text-xl"
+        >
           Home
         </Navbar.Link>
       </Navbar.Collapse>
