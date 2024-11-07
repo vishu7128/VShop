@@ -41,7 +41,7 @@ export const registerUser = async (req, res, next) => {
         res.status(201).json({
             message: `User created Successfully`,
             user: {
-                id: user._id,
+                _id: user._id,
                 email: user.email,
                 name: user.name,
                 isAdmin: user.isAdmin,
@@ -85,7 +85,7 @@ export const loginUser = async (req, res, next) => {
         });
 
         return res.status(200).json({
-            id: user._id,
+            _id: user._id,
             name: user.name,
             email: user.email,
             isAdmin: user.isAdmin,
@@ -111,7 +111,7 @@ export const getUserProfile = async (req, res, next) => {
         })
 
         return res.status(200).json({
-            id: user._id,
+            _id: user._id,
             name: user.name,
             email: user.email,
             isAdmin: user.isAdmin,
@@ -140,7 +140,7 @@ export const updateUserProfile = async (req, res, next) => {
         const updatedUser = await user.save()
 
         return res.status(200).json({
-            id: updatedUser._id,
+            _id: updatedUser._id,
             name: updatedUser.name,
             email: updatedUser.email,
             isAdmin: updatedUser.isAdmin,

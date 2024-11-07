@@ -31,10 +31,6 @@ function OrdersHistory() {
     return new Intl.DateTimeFormat("en-US", options).format(date);
   }
 
-  // Example usage
-  const formattedDate = formatDate("2024-11-06T21:14:10.129Z");
-  console.log(formattedDate);
-
   return (
     <ProtectedRoute>
       <Layouts>

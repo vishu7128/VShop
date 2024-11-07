@@ -2,7 +2,7 @@ import {
     createAsyncThunk,
     createSlice
 } from "@reduxjs/toolkit";
-import api from "../utils/configureAxios"; // your configured Axios instance
+import api from "../utils/configureAxios";
 
 // Thunk to create a new order
 export const createOrder = createAsyncThunk(
@@ -29,7 +29,7 @@ export const getOrderDetails = createAsyncThunk(
         rejectWithValue
     }) => {
         try {
-            const response = await api.get(`/orders/${orderId}`);
+            const response = await api.get(`/orders/$ {orderId}`)
             return response.data;
         } catch (error) {
             if (error.response && error.response.data && error.response.data.message) {
@@ -81,24 +81,39 @@ export const updatePaymentStatus = createAsyncThunk(
     }
 );
 
+
 const orderSlice = createSlice({
     name: "order",
     initialState: {
-        orders: [], // List of orders
-        orderDetails: null, // Details of a single order
+        orders: [],
+        orderDetails: null,
+        shippingAddress: null,
         orderCreationStatus: null,
         paymentUpdateStatus: null,
         loading: false,
         error: null,
     },
     reducers: {
-        clearOrderState: (state) => {
+        clearOrderState: (state, action) => {
             state.orders = [];
             state.orderDetails = null;
+            state.shippingAddress = null;
             state.orderCreationStatus = null;
             state.paymentUpdateStatus = null;
             state.loading = false;
             state.error = null;
+            if (action.payload && action.payload.forceAddressClear)
+                localStorage.removeItem("shippingAddresses");
+        },
+        saveShippingAddress: (state, action) => {
+            const {
+                userId,
+                shippingAddress
+            } = action.payload;
+            const addresses = JSON.parse(localStorage.getItem("shippingAddresses")) || {};
+            addresses[userId] = shippingAddress;
+            localStorage.setItem("shippingAddresses", JSON.stringify(addresses));
+            state.shippingAddress = shippingAddress;
         },
     },
     extraReducers: (builder) => {
@@ -109,10 +124,10 @@ const orderSlice = createSlice({
                 state.error = null;
                 state.orderCreationStatus = null;
             })
-            .addCase(createOrder.fulfilled, (state, action) => {
+            .addCase(createOrder.fulfilled, (state) => {
                 state.loading = false;
                 state.orderCreationStatus = "success";
-                state.orders.push(action.payload);
+                // state.orders.push(action.payload);
             })
             .addCase(createOrder.rejected, (state, action) => {
                 state.loading = false;
@@ -171,6 +186,7 @@ const orderSlice = createSlice({
 });
 
 export const {
-    clearOrderState
+    clearOrderState,
+    saveShippingAddress
 } = orderSlice.actions;
 export default orderSlice.reducer;

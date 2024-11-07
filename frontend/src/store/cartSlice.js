@@ -51,29 +51,17 @@ const cartSlice = createSlice({
     name: "cart",
     initialState: {
         cartItems: cartFromLocalStorage || [],
-        shippingAddress: {
-            address: null,
-            city: null,
-            postalCode: null,
-            country: null,
-        },
         loading: false,
         error: null,
     },
     reducers: {
         clearCart: (state) => {
-            localStorage.removeItem('cartItems');
             state.cartItems = [];
             state.loading = false;
             state.error = null;
+            localStorage.removeItem('cartItems');
         },
-        saveShippingAddress: (state, action) => {
-            const {
-                address
-            } = action.payload;
-            state.shippingAddress = address;
-            localStorage.setItem('shippingAddress', JSON.stringify(action.payload));
-        }
+
     },
     extraReducers: (builder) => {
         builder
@@ -130,6 +118,5 @@ const cartSlice = createSlice({
 
 export const {
     clearCart,
-    saveShippingAddress
 } = cartSlice.actions;
 export default cartSlice.reducer;

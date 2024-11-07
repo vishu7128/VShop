@@ -5,38 +5,67 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import api from "../utils/configureAxios";
-import { createOrder } from "../store/orderSlice";
-import { saveShippingAddress } from "../store/cartSlice";
+import {
+  clearOrderState,
+  createOrder,
+  saveShippingAddress,
+} from "../store/orderSlice";
+import { useNavigate } from "react-router-dom";
+import { clearCart } from "../store/cartSlice";
 
 function PlaceOrder() {
-  const cartItems = useSelector((state) => state.cart.cartItems);
-  const savedShippingAddress = useSelector(
-    (state) => state.cart.shippingAddress
-  );
-  const userInfo = useSelector((state) => state.auth.user);
-
+  const navigate = useNavigate();
   const dispatch = useDispatch();
-  const subTotalPrice = cartItems
-    .reduce((acc, item) => {
-      return acc + item.price * item.quantity;
-    }, 0)
-    .toFixed(2);
 
+  const cartItems = useSelector((state) => state.cart.cartItems);
+  const userInfo = useSelector((state) => state.auth.user);
+  const orderCreationStatus = useSelector(
+    (state) => state.order.orderCreationStatus
+  );
+
+  if (orderCreationStatus === "success") {
+    dispatch(clearOrderState());
+    dispatch(clearCart());
+    navigate("/orders/history");
+  }
+
+  const subTotalPrice = cartItems
+    .reduce((acc, item) => acc + item.price * item.quantity, 0)
+    .toFixed(2);
   const shippingPrice = subTotalPrice > 100 ? 0 : 20;
   const totalPrice = (+subTotalPrice + +shippingPrice).toFixed(2);
 
-  const [shippingAddress, setShippingAddress] = useState({
-    address: "hinjewad",
-    city: "Pune",
-    postalCode: "411057",
-    country: "India",
-  });
+  // Helper function to load shipping address based on user ID
+  const loadShippingAddress = (userId) => {
+    const addresses =
+      JSON.parse(localStorage.getItem("shippingAddresses")) || {};
+    return addresses[userId] || null;
+  };
 
-  const handleAddressChange = function (e, key) {
-    const value = e.target.value;
-    let updatedAddress = { ...shippingAddress };
-    updatedAddress[key] = value;
-    setShippingAddress(updatedAddress);
+  const [shippingAddress, setShippingAddress] = useState(
+    loadShippingAddress(userInfo._id)
+  );
+  const [isAddressSaved, setIsAddressSaved] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const handleAddressChange = (e, key) => {
+    setShippingAddress((prev) => ({ ...prev, [key]: e.target.value }));
+  };
+
+  const handleSaveAddress = () => {
+    if (
+      !shippingAddress.address ||
+      !shippingAddress.city ||
+      !shippingAddress.postalCode ||
+      !shippingAddress.country
+    ) {
+      setErrorMessage("Please fill all fields before saving your address.");
+      return;
+    }
+
+    setErrorMessage(""); // Clear any previous error message
+    setIsAddressSaved(true);
+    dispatch(saveShippingAddress({ userId: userInfo._id, shippingAddress }));
   };
 
   const [paypalClientId, setPaypalClientId] = useState(null);
@@ -45,8 +74,7 @@ function PlaceOrder() {
     const fetchPaypalClientId = async () => {
       try {
         const response = await api.get(`/api/config/paypal`);
-        const clientId = response.data.clientId;
-        setPaypalClientId(clientId);
+        setPaypalClientId(response.data.clientId);
       } catch (error) {
         console.log(error);
       }
@@ -55,18 +83,22 @@ function PlaceOrder() {
   }, []);
 
   const successPaymentHandler = async (details) => {
-    // Transform cartItems to match the orderItemSchema structure
     const orderItems = cartItems.map((item) => ({
       name: item.name,
       quantity: item.quantity,
       image: item.image,
       price: item.price,
-      product: item._id, // Use _id as the product field to match the schema
+      product: item._id,
     }));
+
+    // Get shipping address from localStorage
+    const savedShippingAddress = JSON.parse(
+      localStorage.getItem("shippingAddresses")
+    );
 
     const orderData = {
       orderItems,
-      shippingAddress: savedShippingAddress,
+      shippingAddress: savedShippingAddress[userInfo._id], // Now using address from localStorage
       paymentMethod: "Paypal",
       totalPrice,
       shippingPrice,
@@ -78,19 +110,10 @@ function PlaceOrder() {
       },
     };
 
-    // Dispatch createOrder to save the order in the backend
     dispatch(createOrder(orderData));
   };
 
   const handlePayPalCreateOrder = (data, actions) => {
-    // Ensure the shipping address is saved in Redux before creating the order
-    dispatch(
-      saveShippingAddress({
-        userId: userInfo.id,
-        shippingAddress,
-      })
-    );
-
     return actions.order.create({
       purchase_units: [
         {
@@ -102,7 +125,6 @@ function PlaceOrder() {
     });
   };
 
-  console.log(shippingAddress);
   return (
     <ProtectedRoute>
       <Layouts>
@@ -114,70 +136,52 @@ function PlaceOrder() {
                 <h2 className="text-gray-900 text-lg mb-1 font-medium title-font">
                   Shipping Address
                 </h2>
-                <div className="relative mb-4">
-                  <label
-                    htmlFor="address"
-                    className="leading-7 text-sm text-gray-600"
-                  >
-                    Address
-                  </label>
-                  <input
-                    type="text"
-                    id="address"
-                    name="address"
-                    value={shippingAddress.address}
-                    onChange={(e) => handleAddressChange(e, "address")}
-                    className="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-                  />
-                </div>
-                <div className="relative mb-4">
-                  <label
-                    htmlFor="city"
-                    className="leading-7 text-sm text-gray-600"
-                  >
-                    City
-                  </label>
-                  <input
-                    type="text"
-                    id="city"
-                    name="city"
-                    value={shippingAddress.city}
-                    onChange={(e) => handleAddressChange(e, "city")}
-                    className="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-                  />
-                </div>
-                <div className="relative mb-4">
-                  <label
-                    htmlFor="postalCode"
-                    className="leading-7 text-sm text-gray-600"
-                  >
-                    Postal Code
-                  </label>
-                  <input
-                    type="text"
-                    id="postalCode"
-                    name="postalCode"
-                    value={shippingAddress.postalCode}
-                    onChange={(e) => handleAddressChange(e, "postalCode")}
-                    className="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-                  />
-                </div>
-                <div className="relative mb-4">
-                  <label
-                    htmlFor="country"
-                    className="leading-7 text-sm text-gray-600"
-                  >
-                    Country
-                  </label>
-                  <input
-                    type="text"
-                    id="country"
-                    name="country"
-                    value={shippingAddress.country}
-                    onChange={(e) => handleAddressChange(e, "country")}
-                    className="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-                  />
-                </div>
+
+                {errorMessage && (
+                  <div className="text-red-500 mb-4">{errorMessage}</div>
+                )}
+
+                {["address", "city", "postalCode", "country"].map(
+                  (field, index) => (
+                    <div className="relative mb-4" key={index}>
+                      <label
+                        htmlFor={field}
+                        className="leading-7 text-sm text-gray-600"
+                      >
+                        {field.charAt(0).toUpperCase() + field.slice(1)}
+                      </label>
+                      <input
+                        type="text"
+                        disabled={isAddressSaved}
+                        id={field}
+                        name={field}
+                        maxLength={field === "postalCode" ? 6 : 100}
+                        value={
+                          shippingAddress && shippingAddress[field]
+                            ? shippingAddress[field]
+                            : ""
+                        }
+                        onChange={(e) => handleAddressChange(e, field)}
+                        className={`w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out ${
+                          isAddressSaved
+                            ? "bg-gray-200 cursor-not-allowed opacity-50"
+                            : ""
+                        }`}
+                      />
+                    </div>
+                  )
+                )}
+                <button
+                  disabled={isAddressSaved}
+                  onClick={handleSaveAddress}
+                  className={`bg-indigo-600 text-white py-2 px-4 rounded mt-2 ${
+                    isAddressSaved
+                      ? "bg-gray-400 cursor-not-allowed  opacity-50"
+                      : ""
+                  }`}
+                >
+                  Save Address
+                </button>
               </div>
               {/* Order Summary Section */}
               <div className="w-full lg:w-1/2 lg:pr-10 lg:py-6 mb-6 lg:mb-0">
@@ -202,18 +206,11 @@ function PlaceOrder() {
                       options={{ clientId: paypalClientId }}
                     >
                       <PayPalButtons
-                        disabled={
-                          !shippingAddress.address ||
-                          !shippingAddress.city ||
-                          !shippingAddress.country ||
-                          !shippingAddress.postalCode
-                        }
+                        disabled={!isAddressSaved}
                         createOrder={handlePayPalCreateOrder}
-                        onApprove={(data, actions) => {
-                          return actions.order
-                            .capture()
-                            .then(successPaymentHandler);
-                        }}
+                        onApprove={(data, actions) =>
+                          actions.order.capture().then(successPaymentHandler)
+                        }
                       />
                     </PayPalScriptProvider>
                   </div>
