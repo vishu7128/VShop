@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { logout } from "../store/authSlice";
 import Checkout from "../pages/Checkout";
 import { useState } from "react";
+import logo from "../assets/VShop_Logo.png";
 
 export default function MyNavbar() {
   const dispatch = useDispatch();
@@ -26,13 +27,16 @@ export default function MyNavbar() {
     <Navbar fluid rounded>
       <Navbar.Brand href="https://flowbite-react.com">
         <img
-          src="https://flowbite.com/docs/images/logo.svg"
-          className="mr-3 h-6 sm:h-9"
+          // src="https://flowbite.com/docs/images/logo.svg"
+          src={logo}
+          className="mr-3 lg:mx-10 lg:my-2"
           alt="Flowbite React Logo"
+          width={100}
+          height={70}
         />
-        <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
+        {/* <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
           Flowbite React
-        </span>
+        </span> */}
       </Navbar.Brand>
       <div className="flex md:order-2">
         {userInfo ? (
