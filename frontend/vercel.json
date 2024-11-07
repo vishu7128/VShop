@@ -1,0 +1,9 @@
+{
+    "version": 2,
+    "name": "V-Shop",
+    "rewrites": [{
+        "source": "/(.*)",
+        "destination": "/index.html"
+    }]
+
+}
