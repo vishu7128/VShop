@@ -192,12 +192,12 @@ function PlaceOrder() {
                 <div className="flex border-t border-gray-200 py-2">
                   <span className="text-gray-500">Shipping Price</span>
                   <span className="ml-auto text-gray-900">
-                    ₹{shippingPrice}
+                    ${shippingPrice}
                   </span>
                 </div>
                 <div className="flex">
                   <span className="title-font font-medium text-2xl text-gray-900">
-                    ₹{totalPrice}
+                    ${totalPrice}
                   </span>
                 </div>
                 {paypalClientId && (
