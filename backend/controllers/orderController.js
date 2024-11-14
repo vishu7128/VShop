@@ -11,11 +11,6 @@ export const createOrder = async (req, res, next) => {
 
         } = req.body
 
-        console.log(orderItems);
-        console.log(shippingAddress);
-        console.log(paymentMethod);
-        console.log(shippingPrice);
-        console.log(totalPrice);
 
         if (orderItems && orderItems.length === 0) {
             res.status(400)
@@ -48,9 +43,7 @@ export const createOrder = async (req, res, next) => {
 export const updateOrder = async (req, res, next) => {
     try {
         const orderId = req.params.id
-        console.log(orderId);
         const order = await Order.findById(orderId)
-        console.log(order);
         if (!order) {
             const error = new Error(`Order doesn't exists `)
             error.status = 401
