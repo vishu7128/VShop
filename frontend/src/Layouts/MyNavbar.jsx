@@ -41,7 +41,9 @@ export default function MyNavbar() {
       <div className="flex md:order-2">
         {userInfo ? (
           <Dropdown label="User" dismissOnClick={false}>
-            <Dropdown.Item>Profile</Dropdown.Item>
+            <Dropdown.Item onClick={() => navigate("/profile")}>
+              Profile
+            </Dropdown.Item>
             <Dropdown.Item onClick={() => navigate("/orders/history")}>
               Orders
             </Dropdown.Item>

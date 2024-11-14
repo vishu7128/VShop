@@ -11,6 +11,10 @@ import Login from "./pages/Login";
 import ProtectedRoute from "./Layouts/ProtectedRoute"; // Import ProtectedRoute
 import PlaceOrder from "./pages/PlaceOrder";
 import OrdersHistory from "./pages/OrdersHistory";
+import Profile from "./pages/Profile";
+import ErrorPage from "./pages/ErrorPage";
+import ErrorBoundary from "./components/ErrorBoundary";
+import ErrorThrowing from "./components/ErrorThrowing";
 
 // Define your routes
 const router = createBrowserRouter([
@@ -39,16 +43,40 @@ const router = createBrowserRouter([
     element: <Login />,
   },
   {
+    path: "/profile",
+    element: (
+      <ProtectedRoute>
+        <Profile />
+      </ProtectedRoute>
+    ),
+  },
+  {
     path: "/placeOrder",
-    element: <PlaceOrder />,
+    element: (
+      <ProtectedRoute>
+        <PlaceOrder />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/orders/history",
-    element: <OrdersHistory />,
+    element: (
+      <ProtectedRoute>
+        <OrdersHistory />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/errorBoundary",
+    element: (
+      <ErrorBoundary>
+        <ErrorThrowing />
+      </ErrorBoundary>
+    ),
   },
   {
     path: "*", // Catch-all route for 404 page
-    element: <h1>404 Not Found</h1>,
+    element: <ErrorPage statusCode={404} message="Page Not Found" />,
   },
 ]);
 

@@ -37,7 +37,7 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent the default form submission
     // Dispatch the login action with email, and password
-    await dispatch(login({ email, password }));
+    dispatch(login({ email, password }));
     setPassword(""); // Clear the password field after attempting login
   };
 

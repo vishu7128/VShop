@@ -48,6 +48,29 @@ export const register = createAsyncThunk('users/register', async ({
     }
 });
 
+// Update password action that takes email, name, and password
+// Update password action that takes email, name, and password
+export const updatePassword = createAsyncThunk('users/updatePassword', async ({
+    email,
+    password
+}, {
+    rejectWithValue
+}) => {
+    try {
+        const response = await api.put('/users/profile', {
+            email,
+            password
+        });
+        return response.data.user; // Assuming the API returns the updated user data
+    } catch (error) {
+        if (error.response && error.response.data && error.response.data.message) {
+            return rejectWithValue(error.response.data.message);
+        }
+        return rejectWithValue("Password change failed. Please try again.");
+    }
+});
+
+
 // Load user data from localStorage if it exists
 const userFromLocalStorage = JSON.parse(localStorage.getItem("userInfo"));
 
@@ -97,6 +120,19 @@ const authSlice = createSlice({
             .addCase(register.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload; // Set the error message from the server
+            })
+            .addCase(updatePassword.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(updatePassword.fulfilled, (state, action) => {
+                state.loading = false;
+                state.user = action.payload;
+                localStorage.setItem('userInfo', JSON.stringify(action.payload));
+            })
+            .addCase(updatePassword.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload; // Set the error message from the server
             });
     },
 });
@@ -104,7 +140,7 @@ const authSlice = createSlice({
 // Export the action creator for clearing the error
 export const {
     clearError,
-    logout
+    logout,
 } = authSlice.actions;
 
 export default authSlice.reducer;

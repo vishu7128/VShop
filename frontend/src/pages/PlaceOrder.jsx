@@ -1,4 +1,3 @@
-import ProtectedRoute from "../Layouts/ProtectedRoute";
 import Layouts from "../Layouts/Layouts";
 import CartItems from "../components/CartItems";
 import { useDispatch, useSelector } from "react-redux";
@@ -126,101 +125,95 @@ function PlaceOrder() {
   };
 
   return (
-    <ProtectedRoute>
-      <Layouts>
-        <section className="w-full text-gray-600 body-font overflow-hidden">
-          <div className="container px-5 py-24 mx-auto">
-            <div className="w-full mx-auto flex flex-col lg:flex-row gap-8">
-              {/* Shipping Address Section */}
-              <div className="w-full lg:w-1/2 lg:py-6 bg-white flex flex-col">
-                <h2 className="text-gray-900 text-lg mb-1 font-medium title-font">
-                  Shipping Address
-                </h2>
+    <Layouts>
+      <section className="w-full text-gray-600 body-font overflow-hidden">
+        <div className="container px-5 py-24 mx-auto">
+          <div className="w-full mx-auto flex flex-col lg:flex-row gap-8">
+            {/* Shipping Address Section */}
+            <div className="w-full lg:w-1/2 lg:py-6 bg-white flex flex-col">
+              <h2 className="text-gray-900 text-lg mb-1 font-medium title-font">
+                Shipping Address
+              </h2>
 
-                {errorMessage && (
-                  <div className="text-red-500 mb-4">{errorMessage}</div>
-                )}
+              {errorMessage && (
+                <div className="text-red-500 mb-4">{errorMessage}</div>
+              )}
 
-                {["address", "city", "postalCode", "country"].map(
-                  (field, index) => (
-                    <div className="relative mb-4" key={index}>
-                      <label
-                        htmlFor={field}
-                        className="leading-7 text-sm text-gray-600"
-                      >
-                        {field.charAt(0).toUpperCase() + field.slice(1)}
-                      </label>
-                      <input
-                        type="text"
-                        disabled={isAddressSaved}
-                        id={field}
-                        name={field}
-                        maxLength={field === "postalCode" ? 6 : 100}
-                        value={
-                          shippingAddress && shippingAddress[field]
-                            ? shippingAddress[field]
-                            : ""
-                        }
-                        onChange={(e) => handleAddressChange(e, field)}
-                        className={`w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out ${
-                          isAddressSaved
-                            ? "bg-gray-200 cursor-not-allowed opacity-50"
-                            : ""
-                        }`}
-                      />
-                    </div>
-                  )
-                )}
-                <button
-                  disabled={isAddressSaved}
-                  onClick={handleSaveAddress}
-                  className={`bg-indigo-600 text-white py-2 px-4 rounded mt-2 ${
-                    isAddressSaved
-                      ? "bg-gray-400 cursor-not-allowed  opacity-50"
-                      : ""
-                  }`}
-                >
-                  Save Address
-                </button>
-              </div>
-              {/* Order Summary Section */}
-              <div className="w-full lg:w-1/2 lg:pr-10 lg:py-6 mb-6 lg:mb-0">
-                <h2 className="text-sm title-font text-gray-500 tracking-widest">
-                  Order Summary
-                </h2>
-                <CartItems />
-                <div className="flex border-t border-gray-200 py-2">
-                  <span className="text-gray-500">Shipping Price</span>
-                  <span className="ml-auto text-gray-900">
-                    ${shippingPrice}
-                  </span>
-                </div>
-                <div className="flex">
-                  <span className="title-font font-medium text-2xl text-gray-900">
-                    ${totalPrice}
-                  </span>
-                </div>
-                {paypalClientId && (
-                  <div className="mt-5">
-                    <PayPalScriptProvider
-                      options={{ clientId: paypalClientId }}
+              {["address", "city", "postalCode", "country"].map(
+                (field, index) => (
+                  <div className="relative mb-4" key={index}>
+                    <label
+                      htmlFor={field}
+                      className="leading-7 text-sm text-gray-600"
                     >
-                      <PayPalButtons
-                        disabled={!isAddressSaved}
-                        createOrder={handlePayPalCreateOrder}
-                        onApprove={(data, actions) =>
-                          actions.order.capture().then(successPaymentHandler)
-                        }
-                      />
-                    </PayPalScriptProvider>
+                      {field.charAt(0).toUpperCase() + field.slice(1)}
+                    </label>
+                    <input
+                      type="text"
+                      disabled={isAddressSaved}
+                      id={field}
+                      name={field}
+                      maxLength={field === "postalCode" ? 6 : 100}
+                      value={
+                        shippingAddress && shippingAddress[field]
+                          ? shippingAddress[field]
+                          : ""
+                      }
+                      onChange={(e) => handleAddressChange(e, field)}
+                      className={`w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out ${
+                        isAddressSaved
+                          ? "bg-gray-200 cursor-not-allowed opacity-50"
+                          : ""
+                      }`}
+                    />
                   </div>
-                )}
+                )
+              )}
+              <button
+                disabled={isAddressSaved}
+                onClick={handleSaveAddress}
+                className={`bg-indigo-600 text-white py-2 px-4 rounded mt-2 ${
+                  isAddressSaved
+                    ? "bg-gray-400 cursor-not-allowed  opacity-50"
+                    : ""
+                }`}
+              >
+                Save Address
+              </button>
+            </div>
+            {/* Order Summary Section */}
+            <div className="w-full lg:w-1/2 lg:pr-10 lg:py-6 mb-6 lg:mb-0">
+              <h2 className="text-sm title-font text-gray-500 tracking-widest">
+                Order Summary
+              </h2>
+              <CartItems />
+              <div className="flex border-t border-gray-200 py-2">
+                <span className="text-gray-500">Shipping Price</span>
+                <span className="ml-auto text-gray-900">${shippingPrice}</span>
               </div>
+              <div className="flex">
+                <span className="title-font font-medium text-2xl text-gray-900">
+                  ${totalPrice}
+                </span>
+              </div>
+              {paypalClientId && (
+                <div className="mt-5">
+                  <PayPalScriptProvider options={{ clientId: paypalClientId }}>
+                    <PayPalButtons
+                      disabled={!isAddressSaved}
+                      createOrder={handlePayPalCreateOrder}
+                      onApprove={(data, actions) =>
+                        actions.order.capture().then(successPaymentHandler)
+                      }
+                    />
+                  </PayPalScriptProvider>
+                </div>
+              )}
             </div>
           </div>
-        </section>
-      </Layouts>
-    </ProtectedRoute>
+        </div>
+      </section>
+    </Layouts>
   );
 }
 

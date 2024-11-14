@@ -135,16 +135,25 @@ export const updateUserProfile = async (req, res, next) => {
 
         user.name = req.body.name || user.name
         user.email = req.body.email || user.email
-        if (req.body.password) user.password = req.body.password
+        if (!req.body.password) res.status(400).json({
+            message: `Password not provided`
+        })
+        if (req.body.password) {
+            // Hashing the password before saving
+            const hashedPassword = await bcrypt.hash(req.body.password, 10);
+            user.password = hashedPassword
+        }
 
         const updatedUser = await user.save()
 
         return res.status(200).json({
-            _id: updatedUser._id,
-            name: updatedUser.name,
-            email: updatedUser.email,
-            isAdmin: updatedUser.isAdmin,
-            createdAt: updatedUser.createdAt,
+            user: {
+                _id: updatedUser._id,
+                name: updatedUser.name,
+                email: updatedUser.email,
+                isAdmin: updatedUser.isAdmin,
+                createdAt: updatedUser.createdAt,
+            }
         });
 
     } catch (error) {
