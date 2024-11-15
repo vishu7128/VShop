@@ -2,9 +2,11 @@ import { useEffect } from "react";
 import Layouts from "../Layouts/Layouts";
 import { useDispatch, useSelector } from "react-redux";
 import { getOrderList } from "../store/orderSlice";
+import { useNavigate } from "react-router-dom";
 
 function OrdersHistory() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const orderList = useSelector((state) => state.order.orders);
 
   useEffect(() => {
@@ -42,18 +44,18 @@ function OrdersHistory() {
             </div>
 
             <div className="mt-6 flow-root sm:mt-8">
-              <div className="divide-y divide-gray-200 dark:divide-gray-700">
+              <div className="space-y-6">
                 {orderList.map((order) => {
                   return (
                     <div
                       key={order._id}
-                      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-4 py-6" // Add gap-x-8 for column spacing
+                      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-x-8 gap-y-4 p-6 border border-gray-300 rounded-lg shadow-md bg-white dark:bg-gray-800 dark:border-gray-700 hover:shadow-lg transition-shadow duration-300"
                     >
                       <dl className="lg:flex-1">
-                        <dt className="text-base font-medium text-gray-500 dark:text-gray-400">
+                        <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
                           Order ID:
                         </dt>
-                        <dd className="mt-1.5 text-base font-semibold text-gray-900 dark:text-white">
+                        <dd className="mt-1.5 text-sm font-semibold text-gray-900 dark:text-white">
                           <a href="#" className="hover:underline">
                             {order._id}
                           </a>
@@ -61,45 +63,46 @@ function OrdersHistory() {
                       </dl>
 
                       <dl className="lg:flex-1">
-                        <dt className="text-base font-medium text-gray-500 dark:text-gray-400">
+                        <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
                           Date:
                         </dt>
-                        <dd className="mt-1.5 text-base font-semibold text-gray-900 dark:text-white">
+                        <dd className="mt-1.5 text-sm font-semibold text-gray-900 dark:text-white">
                           {formatDate(order.createdAt)}
                         </dd>
                       </dl>
 
                       <dl className="lg:flex-1">
-                        <dt className="text-base font-medium text-gray-500 dark:text-gray-400">
+                        <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
                           Price:
                         </dt>
-                        <dd className="mt-1.5 text-base font-semibold text-gray-900 dark:text-white">
+                        <dd className="mt-1.5 text-sm font-semibold text-gray-900 dark:text-white">
                           ${order.totalPrice}
                         </dd>
                       </dl>
 
                       <dl className="lg:flex-1">
-                        <dt className="text-base font-medium text-gray-500 dark:text-gray-400">
+                        <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
                           Status:
                         </dt>
-                        <dd className="mt-1.5 inline-flex items-center rounded bg-primary-100 px-2.5 py-0.5 text-s font-medium text-primary-800 dark:bg-primary-900 dark:text-primary-300">
+                        <dd
+                          className={`mt-1.5 inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${
+                            order.isDelivered
+                              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+                              : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
+                          }`}
+                        >
                           {order.isDelivered ? "Delivered" : "Shipping"}
                         </dd>
                       </dl>
 
-                      <div className="col-span-full sm:col-span-2 lg:flex lg:w-auto lg:justify-end gap-4">
+                      {/* View Details Button */}
+                      <div className="flex items-center justify-end lg:col-span-1">
                         <button
-                          type="button"
-                          className="w-full rounded-lg border border-red-700 px-3 py-2 text-center text-sm font-medium text-red-700 hover:bg-red-700 hover:text-white focus:outline-none focus:ring-4 focus:ring-red-300 dark:border-red-500 dark:text-red-500 dark:hover:bg-red-600 dark:hover:text-white dark:focus:ring-red-900 lg:w-auto"
+                          onClick={() => navigate(`/orders/${order._id}`)}
+                          className="inline-flex items-center px-4 py-2 rounded-md border border-blue-600 bg-blue-600 text-white font-medium hover:bg-blue-700 hover:border-blue-700 focus:ring-2 focus:ring-blue-400 focus:outline-none"
                         >
-                          Cancel order
+                          View Items
                         </button>
-                        <a
-                          href="#"
-                          className="w-full inline-flex justify-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:outline-none focus:ring-4 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700 lg:w-auto"
-                        >
-                          View details
-                        </a>
                       </div>
                     </div>
                   );

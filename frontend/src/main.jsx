@@ -15,6 +15,7 @@ import Profile from "./pages/Profile";
 import ErrorPage from "./pages/ErrorPage";
 import ErrorBoundary from "./components/ErrorBoundary";
 import ErrorThrowing from "./components/ErrorThrowing";
+import OrderDetails from "./pages/OrderDetails";
 
 // Define your routes
 const router = createBrowserRouter([
@@ -63,6 +64,14 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <OrdersHistory />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/orders/:orderId",
+    element: (
+      <ProtectedRoute>
+        <OrderDetails />
       </ProtectedRoute>
     ),
   },
