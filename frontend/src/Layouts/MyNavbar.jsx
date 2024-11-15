@@ -25,7 +25,7 @@ export default function MyNavbar() {
 
   return (
     <Navbar fluid rounded>
-      <Navbar.Brand href="https://flowbite-react.com">
+      <Navbar.Brand href="/">
         <img
           // src="https://flowbite.com/docs/images/logo.svg"
           src={logo}
