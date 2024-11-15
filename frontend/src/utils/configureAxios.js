@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-    // baseURL: 'https://vshop-git-master-vishu7128s-projects.vercel.app/',
-    baseURL: 'http://localhost:7000', // Adjust this to your server's base URL
+    baseURL: 'https://vshop-git-master-vishu7128s-projects.vercel.app/',
+    // baseURL: 'http://localhost:7000', // Adjust this to your server's base URL
 });
 
 // Request interceptor to attach token to every request
