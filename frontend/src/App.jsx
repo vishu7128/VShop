@@ -1,4 +1,4 @@
-import Products from "./components/Products";
+import Products from "./pages/Products";
 import Layouts from "./Layouts/Layouts";
 
 function App() {

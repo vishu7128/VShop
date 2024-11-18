@@ -1,17 +1,45 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchProducts } from "../store/productsSlice";
+import { fetchProducts } from "../store/productsSlice.js"; // Ensure this action is correct
 import { Link } from "react-router-dom";
 
 const Products = () => {
   const dispatch = useDispatch();
-  const { products, loading, error } = useSelector((state) => state.products);
+  const { products, loading, error, totalPages, currentPage } = useSelector(
+    (state) => state.products
+  );
 
+  const [page, setPage] = useState(1);
+  const limit = 10; // Adjust the limit as needed
+
+  // Fetch products whenever page changes
   useEffect(() => {
-    dispatch(fetchProducts());
-  }, [dispatch]);
+    dispatch(fetchProducts({ page, limit }));
+  }, [dispatch, page, limit]);
 
-  if (loading) return <div>Loading...</div>;
+  // Handle infinite scrolling
+  useEffect(() => {
+    const handleScroll = () => {
+      // Check if we're at the bottom of the page
+      const userScrolledToBottom =
+        window.innerHeight + document.documentElement.scrollTop >=
+        document.documentElement.scrollHeight - 50; // Added a threshold to avoid triggering on small scrolls
+
+      // Trigger loading more products only if the scroll is at the bottom
+      // and we are not loading and haven't reached the last page
+      if (userScrolledToBottom && !loading && page < totalPages) {
+        setPage((prevPage) => prevPage + 1); // Increment page
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [loading, page, totalPages]);
+
+  if (loading && page === 1) return <div>Loading...</div>; // Show loading only if it's the first page
   if (error) return <div>Error: {error}</div>;
 
   // Render products list
@@ -60,6 +88,11 @@ const Products = () => {
             </div>
           ))}
         </div>
+
+        {/* Show a loading spinner when fetching more products */}
+        {loading && page > 1 && (
+          <div className="text-center">Loading more...</div>
+        )}
       </div>
     </section>
   );
