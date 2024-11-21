@@ -1,7 +1,7 @@
 import { useSelector, useDispatch } from "react-redux";
 import { removeFromCart } from "../store/cartSlice";
 
-function CartItems() {
+function CartItems({ parent = null }) {
   const cartItems = useSelector((state) => state.cart.cartItems);
   const dispatch = useDispatch();
 
@@ -36,13 +36,17 @@ function CartItems() {
                   <p className="text-gray-500">Qty {product.quantity}</p>
 
                   <div className="flex">
-                    <button
-                      type="button"
-                      className="font-medium text-indigo-600 hover:text-indigo-500"
-                      onClick={() => handleRemoveItem(product._id)}
-                    >
-                      Remove
-                    </button>
+                    {parent === "PlaceOrder" ? (
+                      ""
+                    ) : (
+                      <button
+                        type="button"
+                        className="font-medium text-indigo-600 hover:text-indigo-500"
+                        onClick={() => handleRemoveItem(product._id)}
+                      >
+                        Remove
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

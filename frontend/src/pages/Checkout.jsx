@@ -72,8 +72,18 @@ export default function Checkout({ open, setOpen }) {
                   <div className="mt-6">
                     <a
                       href="#"
-                      className="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
-                      onClick={() => navigate("/placeOrder")}
+                      className={`flex items-center justify-center rounded-md border border-transparent px-6 py-3 text-base font-medium shadow-sm ${
+                        subTotalPrice > 0
+                          ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                          : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      }`}
+                      onClick={(e) => {
+                        if (subTotalPrice <= 0) {
+                          e.preventDefault(); // Prevent navigation
+                          return;
+                        }
+                        navigate("/placeOrder");
+                      }}
                     >
                       Checkout
                     </a>
