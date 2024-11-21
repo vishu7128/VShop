@@ -1,43 +1,62 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProducts } from "../store/productsSlice.js"; // Ensure this action is correct
 import { Link } from "react-router-dom";
 
+// Custom debounce function
+const debounce = (func, delay) => {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer); // Clear the previous timer
+    timer = setTimeout(() => {
+      func(...args); // Call the function after the delay
+    }, delay);
+  };
+};
+
 const Products = () => {
   const dispatch = useDispatch();
-  const { products, loading, error, totalPages, currentPage } = useSelector(
+  const { products, loading, error, totalPages } = useSelector(
     (state) => state.products
   );
 
   const [page, setPage] = useState(1);
   const limit = 10; // Adjust the limit as needed
 
+  // Create a debounced version of the fetch function
+  const fetchDebouncedProducts = useCallback(
+    debounce((page) => {
+      dispatch(fetchProducts({ page, limit }));
+    }, 300),
+    [dispatch, limit]
+  );
+
   // Fetch products whenever page changes
   useEffect(() => {
-    dispatch(fetchProducts({ page, limit }));
-  }, [dispatch, page, limit]);
+    fetchDebouncedProducts(page);
+  }, [page, fetchDebouncedProducts]);
 
-  // Handle infinite scrolling
-  useEffect(() => {
-    const handleScroll = () => {
-      // Check if we're at the bottom of the page
+  // Debounced infinite scrolling
+  const handleScroll = useCallback(
+    debounce(() => {
       const userScrolledToBottom =
         window.innerHeight + document.documentElement.scrollTop >=
-        document.documentElement.scrollHeight - 50; // Added a threshold to avoid triggering on small scrolls
+        document.documentElement.scrollHeight - 50; // Threshold to avoid triggering early
 
-      // Trigger loading more products only if the scroll is at the bottom
-      // and we are not loading and haven't reached the last page
       if (userScrolledToBottom && !loading && page < totalPages) {
         setPage((prevPage) => prevPage + 1); // Increment page
       }
-    };
+    }, 300), // 300ms debounce delay
+    [loading, page, totalPages]
+  );
 
+  useEffect(() => {
     window.addEventListener("scroll", handleScroll);
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, [loading, page, totalPages]);
+  }, [handleScroll]);
 
   if (loading && page === 1) return <div>Loading...</div>; // Show loading only if it's the first page
   if (error) return <div>Error: {error}</div>;
